@@ -1,0 +1,18 @@
+# Core
+fastapi
+uvicorn[standard]
+pydantic>=2.0
+
+# LLM / Agent Framework
+langchain
+langchain-core
+langchain-groq
+langgraph
+
+# Environment
+python-dotenv
+
+# Data Ingestion
+feedparser
+requests
+
