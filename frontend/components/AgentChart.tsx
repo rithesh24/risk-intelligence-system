@@ -7,6 +7,7 @@ import {
   BarElement,
   Tooltip,
   Legend,
+  TooltipItem,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { AgentOutput, formatAgentName, getRiskLevel } from "@/lib/api";
@@ -94,9 +95,9 @@ export default function AgentChart({ agentOutputs }: AgentChartProps) {
         borderWidth: 1,
         titleFont: { family: "IBM Plex Mono", size: 12 },
         bodyFont: { family: "IBM Plex Mono", size: 11 },
-        callbacks: {
-          label: (ctx: { dataset: { label: string }; raw: unknown }) =>
-            ` ${ctx.dataset.label}: ${ctx.raw}%`,
+       callbacks: {
+        label: (ctx: TooltipItem<"bar">) =>
+          ` ${ctx.dataset.label ?? ""}: ${ctx.raw}%`, 
         },
       },
     },
