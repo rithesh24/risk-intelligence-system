@@ -11,6 +11,7 @@ import {
   PointElement,
   RadialLinearScale,
   Filler,
+  TooltipItem,  
 } from "chart.js";
 import { Radar } from "react-chartjs-2";
 import { AgentLog, formatAgentName, getRiskLevel } from "@/lib/api";
@@ -97,8 +98,8 @@ export default function RiskRadarChart({ logs }: RiskRadarChartProps) {
         titleFont: { family: "IBM Plex Mono", size: 12 },
         bodyFont: { family: "IBM Plex Mono", size: 11 },
         callbacks: {
-          label: (ctx: { dataset: { label: string }; raw: unknown }) =>
-            ` ${ctx.dataset.label}: ${ctx.raw}%`,
+          label: (ctx: TooltipItem<"radar">) =>
+          ` ${ctx.dataset.label ?? ""}: ${ctx.raw}%`,
         },
       },
     },
