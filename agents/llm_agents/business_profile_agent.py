@@ -10,6 +10,9 @@ load_dotenv()
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0,
+    model_kwargs={"response_format": {"type": "json_object"}},
+    timeout=15,
+    max_retries=1,
 )
 
 prompt = PromptTemplate(
@@ -51,6 +54,28 @@ def run(state):
     return {
         "risk_score": 0.5,
         "confidence": 0.7,
-        "reasoning": f"Business profile extracted for industry: {profile.get('industry', 'unknown')}",
+        "reasoning": summarize_profile(profile),
         "metadata": profile,
     }
+
+
+def summarize_profile(profile: dict) -> str:
+    industry = profile.get("industry") or "an unclassified"
+    markets = profile.get("export_markets") or []
+    dependencies = profile.get("key_dependencies") or []
+
+    parts = [f"This business operates in the {industry} industry."]
+
+    if markets:
+        parts.append(
+            f"It sells into {', '.join(markets)}, so revenue is tied to demand "
+            "and economic conditions in those markets."
+        )
+
+    if dependencies:
+        parts.append(
+            f"It relies on {', '.join(dependencies)}, which creates supply and "
+            "cost exposures worth tracking."
+        )
+
+    return " ".join(parts)

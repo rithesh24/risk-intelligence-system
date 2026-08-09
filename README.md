@@ -218,12 +218,14 @@ Market data is fetched dynamically after exposure mapping, only for the specific
 
 The system ingests global news from sources including:
 
-- Economic Times, Mint, Business Standard (India business)
-- RBI (monetary policy)
-- Reuters Markets and Business (global signals)
+- Economic Times, Mint, Business Standard, Moneycontrol (India business)
+- Google News (RBI monetary policy, WTO trade/tariff, geopolitics/sanctions/supply chain)
+- BBC Business, CNBC, Yahoo Finance (global markets)
 - OilPrice.com (energy commodities)
-- WTO News (trade policy)
+- Al Jazeera (geopolitics/economy)
 - Hellenic Shipping News (logistics and freight)
+
+All feeds are free with no API key required. RBI's and WTO's own RSS feeds were discontinued, so those topics are sourced via targeted Google News queries instead; Reuters retired public RSS entirely and is replaced with BBC/CNBC/Yahoo.
 
 Articles are keyword-filtered for economic relevance and converted into structured events analyzed by the narrative agent.
 
@@ -283,7 +285,7 @@ The frontend is split into two purpose-built dashboards, each served as a separa
 - Agent Detail View — expandable cards per agent showing risk score, confidence, reasoning, and a visual risk bar
 - Hover tooltips on every section explaining what each component measures and how to interpret it
 
-**Agent Monitor** (`/monitor`) — designed for developers and system debugging.
+**Agent Monitor** (`/monitor`) — designed for developers 
 
 - Summary stat cards — total agents run, average risk score, average confidence, highest risk agent
 - Agent Execution Flow graph — an n8n-style SVG pipeline diagram showing all 8 agents as connected nodes with bezier edges and directional arrows. Executed agents glow in their risk color; unexecuted agents are dimmed. Solid edges indicate completed execution paths; dashed edges indicate paths not taken

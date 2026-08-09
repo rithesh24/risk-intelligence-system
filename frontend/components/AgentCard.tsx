@@ -10,6 +10,11 @@ interface AgentCardProps {
   index: number;
 }
 
+function truncate(text: string, max: number): string {
+  if (!text || text.length <= max) return text;
+  return text.slice(0, max).trimEnd() + "…";
+}
+
 export default function AgentCard({ agentKey, output, index }: AgentCardProps) {
   const [open, setOpen] = useState(false);
   const risk = getRiskLevel(output.risk_score);
@@ -24,8 +29,8 @@ export default function AgentCard({ agentKey, output, index }: AgentCardProps) {
       style={{ animationDelay: `${index * 80}ms`, animationFillMode: "both" }}
       onClick={() => setOpen((o) => !o)}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
           {/* Risk dot */}
           <div
             className="w-2 h-2 rounded-full flex-shrink-0"
@@ -34,9 +39,16 @@ export default function AgentCard({ agentKey, output, index }: AgentCardProps) {
               boxShadow: `0 0 6px ${risk.color}`,
             }}
           />
-          <span className="font-mono text-sm text-slate-300">{name}</span>
+          <div className="min-w-0">
+            <span className="font-mono text-sm text-slate-300">{name}</span>
+            {!open && output.reasoning && (
+              <p className="text-xs text-slate-500 truncate mt-0.5">
+                {truncate(output.reasoning, 90)}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-shrink-0">
           <div className="text-right hidden sm:block">
             <p className="label">Risk</p>
             <p className="font-mono text-sm" style={{ color: risk.color }}>

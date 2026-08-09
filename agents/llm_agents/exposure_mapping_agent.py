@@ -9,6 +9,9 @@ load_dotenv()
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0,
+    model_kwargs={"response_format": {"type": "json_object"}},
+    timeout=15,
+    max_retries=1,
 )
 
 prompt = PromptTemplate(
@@ -60,6 +63,40 @@ def normalize_exposures(exposures: dict) -> dict:
     return exposures
 
 
+def summarize_exposures(exposures: dict) -> str:
+    parts = []
+
+    if exposures["currency_exposure"]:
+        parts.append(
+            "The business has meaningful foreign currency exposure, so exchange "
+            "rate swings can directly affect revenue or costs."
+        )
+    else:
+        parts.append("Currency exposure appears limited based on the information provided.")
+
+    commodities = exposures["commodity_dependencies"]
+    if commodities:
+        parts.append(
+            f"It depends on {', '.join(commodities)}, so price swings in these "
+            "inputs can pressure margins."
+        )
+
+    if exposures["regulatory_risk"]:
+        parts.append(
+            "The industry or markets involved carry notable regulatory exposure "
+            "that should be monitored."
+        )
+
+    descriptions = [
+        e.get("description", "") for e in exposures.get("additional_exposures", [])
+        if isinstance(e, dict) and e.get("description")
+    ]
+    if descriptions:
+        parts.append("Other structural risks flagged: " + "; ".join(descriptions[:2]) + ".")
+
+    return " ".join(parts)
+
+
 def run(state) -> dict:
     profile = state.business_profile
 
@@ -81,20 +118,9 @@ def run(state) -> dict:
 
     exposures = normalize_exposures(exposures)
 
-    additional = exposures.get("additional_exposures", [])
-    additional_summary = (
-        ", ".join(e.get("type", "") for e in additional) if additional else "none"
-    )
-
     return {
         "risk_score": 0.5,
         "confidence": 0.7,
-        "reasoning": (
-            f"Exposures identified — "
-            f"currency: {exposures['currency_exposure']}, "
-            f"regulatory: {exposures['regulatory_risk']}, "
-            f"commodities: {exposures['commodity_dependencies']}, "
-            f"additional: {additional_summary}"
-        ),
+        "reasoning": summarize_exposures(exposures),
         "metadata": exposures,
     }

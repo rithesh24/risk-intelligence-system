@@ -9,6 +9,9 @@ load_dotenv()
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0,
+    model_kwargs={"response_format": {"type": "json_object"}},
+    timeout=15,
+    max_retries=1,
 )
 
 prompt = PromptTemplate(
@@ -22,7 +25,7 @@ Return ONLY valid JSON with no extra text, no markdown, no backticks.
   "sentiment": "positive | neutral | negative",
   "risk_score": float between 0 and 1,
   "signal_type": "currency | commodity | demand | policy | geopolitics | logistics",
-  "reasoning": "short explanation of why this news creates or reduces risk"
+  "reasoning": "2-3 plain-English sentences explaining what the news is and why it does or doesn't create risk for this specific business"
 }}
 
 Scoring rules:
@@ -122,10 +125,7 @@ def run(state) -> dict:
     return {
         "risk_score": risk_score,
         "confidence": 0.7,
-        "reasoning": (
-            f"Narrative signal ({result.get('signal_type', 'unknown')}): "
-            f"{result.get('sentiment', 'neutral')} — {result.get('reasoning', '')}"
-        ),
+        "reasoning": result.get("reasoning") or "No specific reasoning was returned for this news signal.",
         "metadata": {
             "sentiment": result.get("sentiment", "neutral"),
             "signal_type": result.get("signal_type", "unknown"),

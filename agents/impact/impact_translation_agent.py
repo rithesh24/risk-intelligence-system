@@ -42,11 +42,11 @@ def run(state) -> dict:
     )
     
     reasoning = (
-        f"Revenue ↓{revenue_impact}% driven by demand risk ({demand_risk:.2f}) "
-        f"and currency risk ({currency_risk:.2f}). "
-        f"Cost ↑{cost_impact}% driven by commodity risk ({commodity_risk:.2f}) "
-        f"and policy risk ({policy_risk:.2f}). "
-        f"Estimated margin impact: {margin_impact}%."
+        f"Based on the signals above, revenue is estimated to decline by about "
+        f"{revenue_impact}%, mainly driven by demand conditions and currency "
+        f"movements. At the same time, costs are expected to rise roughly "
+        f"{cost_impact}%, driven by commodity price and regulatory risk. "
+        f"Combined, this points to an estimated margin impact of {margin_impact}%."
     )
     
     return {

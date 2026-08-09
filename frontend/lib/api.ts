@@ -1,4 +1,9 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+// Backend pipeline runs 3 sequential LLM calls (15s timeout, 1 retry each)
+// plus RSS/market-data fetches — bound the UI wait so it fails instead of
+// spinning forever if the backend hangs.
+const ANALYZE_TIMEOUT_MS = 90_000;
 export interface AgentOutput {
   risk_score: number;
   confidence: number;
@@ -26,11 +31,20 @@ export interface AgentLog {
 export async function analyzeCompany(
   description: string
 ): Promise<AnalysisResult> {
-  const res = await fetch(`${BASE_URL}/api/analyze`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ company_description: description }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/api/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company_description: description }),
+      signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
+    });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "TimeoutError") {
+      throw new Error("Analysis timed out — the backend may be overloaded. Please try again.");
+    }
+    throw e;
+  }
 
   if (!res.ok) {
     const errorText = await res.text();
